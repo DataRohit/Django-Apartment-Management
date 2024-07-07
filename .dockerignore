@@ -1,0 +1,13 @@
+# Version control and configuration files
+.editorconfig
+.gitattributes
+.gitignore
+
+
+# Directories and files related to project structure and development
+.envs/
+venv/
+
+
+# Git repository metadata
+.git/

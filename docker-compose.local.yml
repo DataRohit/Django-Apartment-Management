@@ -1,0 +1,127 @@
+volumes:
+    local_postgres_data: {}
+    local_postgres_data_backups: {}
+    local_minio_data: {}
+    local_mailpit_data: {}
+    local_redis_data: {}
+    local_logs_nginx: {}
+
+services:
+    server: &server
+        build:
+            context: .
+            dockerfile: ./compose/local/server/Dockerfile
+        container_name: alpha_apartments_local_server
+        depends_on:
+            - postgres
+            - redis
+            - mailpit
+            - minio
+        volumes:
+            - ./server:/app:z
+        env_file:
+            - ./server/.envs/.local/.django.env
+            - ./server/.envs/.local/.postgres.env
+        command: /start
+        networks:
+            - alpha_apartments_network
+
+    postgres:
+        build:
+            context: .
+            dockerfile: ./compose/local/postgres/Dockerfile
+        container_name: alpha_apartments_local_postgres
+        volumes:
+            - local_postgres_data:/var/lib/postgresql/data
+            - local_postgres_data_backups:/backups
+        env_file:
+            - ./server/.envs/.local/.postgres.env
+        networks:
+            - alpha_apartments_network
+
+    minio:
+        image: minio/minio
+        container_name: alpha_apartments_local_minio
+        volumes:
+            - local_minio_data:/data
+        ports:
+            - "9090:9090"
+        environment:
+            MINIO_ROOT_USER: minioadmin
+            MINIO_ROOT_PASSWORD: minioadmin
+        command: server --console-address :9090 --address :9000 /data
+        networks:
+            - alpha_apartments_network
+
+    mailpit:
+        image: docker.io/axllent/mailpit:latest
+        container_name: alpha_apartments_local_mailpit
+        volumes:
+            - local_mailpit_data:/data
+        ports:
+            - "8025:8025"
+        environment:
+            MP_MAX_MESSAGES: 5000
+            MP_DATA_FILE: /data/mailpit.db
+            MP_SMTP_AUTH_ACCEPT_ANY: 1
+            MP_SMTP_AUTH_ALLOW_INSECURE: 1
+        networks:
+            - alpha_apartments_network
+
+    redis:
+        image: docker.io/redis:6
+        container_name: alpha_apartments_local_redis
+        volumes:
+            - local_redis_data:/data
+        networks:
+            - alpha_apartments_network
+
+    celeryworker:
+        <<: *server
+        container_name: alpha_apartments_local_celeryworker
+        depends_on:
+            - redis
+            - postgres
+            - mailpit
+        ports: []
+        command: /start-celeryworker
+        networks:
+            - alpha_apartments_network
+
+    celerybeat:
+        <<: *server
+        container_name: alpha_apartments_local_celerybeat
+        depends_on:
+            - redis
+            - postgres
+            - mailpit
+        ports: []
+        command: /start-celerybeat
+        networks:
+            - alpha_apartments_network
+
+    flower:
+        <<: *server
+        container_name: alpha_apartments_local_flower
+        command: /start-flower
+        ports:
+            - "5555:5555"
+        networks:
+            - alpha_apartments_network
+
+    nginx:
+        build:
+            context: .
+            dockerfile: ./compose/local/nginx/Dockerfile
+        container_name: alpha_apartments_local_nginx
+        depends_on:
+            - server
+        ports:
+            - "8080:80"
+        volumes:
+            - local_logs_nginx:/var/log/nginx
+        networks:
+            - alpha_apartments_network
+
+networks:
+    alpha_apartments_network:

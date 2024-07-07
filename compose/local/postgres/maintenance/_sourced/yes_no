@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+
+# Function to prompt for confirmation
+yes_no() {
+    # Description of the function
+    declare desc="Prompt for confirmation. \$\"\{1\}\": confirmation message."
+
+    # Extract the first argument (confirmation message)
+    local arg1="${1}"
+
+    # Initialize a variable to store the user's response
+    local response=
+
+    # Prompt the user with the confirmation message
+    read -r -p "${arg1} (y/[n])? " response
+
+    # Check if the response is 'y' or 'Y'
+    if [[ "${response}" =~ ^[Yy]$ ]]; then
+        # If yes, exit with status code 0 (success)
+        exit 0
+    else
+        # If no or other input, exit with status code 1 (failure)
+        exit 1
+    fi
+}

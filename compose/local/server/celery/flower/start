@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+# Set bash to exit immediately if a command fails
+set -o errexit
+# Set bash to treat unset variables as an error when expanding them
+set -o nounset
+
+
+# Execute watchfiles to monitor Python files and start Celery Flower with specified broker URL and basic authentication
+exec watchfiles --filter python celery.__main__.main \
+    --args \
+    "-A config.celery_app -b \"${CELERY_BROKER_URL}\" flower --basic_auth=\"${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}\""

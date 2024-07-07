@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+
+# Set the backup directory path
+BACKUP_DIR_PATH='/backups'
+
+
+# Set the prefix for backup files
+BACKUP_FILE_PREFIX='backup'

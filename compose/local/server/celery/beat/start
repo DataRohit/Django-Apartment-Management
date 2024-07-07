@@ -1,0 +1,15 @@
+#!/bin/bash
+
+
+# Set bash to exit immediately if a command fails
+set -o errexit
+# Set bash to treat unset variables as an error when expanding them
+set -o nounset
+
+
+# Remove any existing celerybeat.pid file
+rm -f './celerybeat.pid'
+
+
+# Execute watchfiles to monitor Python files for changes and restart Celery Beat scheduler
+exec watchfiles --filter python celery.__main__.main --args '-A config.celery_app beat -l INFO'

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+
+# Set bash to exit immediately if a command fails
+set -o errexit
+# Return a non-zero exit status if any part of a pipeline fails
+set -o pipefail
+# Treat unset variables as an error when expanding them
+set -o nounset
+
+
+# Set the Celery broker URL using the Redis URL
+export CELERY_BROKER_URL="${REDIS_URL}"
+
+
+# Check if POSTGRES_USER is unset, and if so, set it to 'postgres'
+if [ -z "${POSTGRES_USER}" ]; then
+    base_postgres_image_default_user='postgres'
+    export POSTGRES_USER="${base_postgres_image_default_user}"
+fi
+
+
+# Set the DATABASE_URL environment variable for connecting to PostgreSQL
+export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+
+
+# Use a Python script to wait for PostgreSQL to become available
+python << END
+import sys
+import time
+
+import psycopg
+
+# Define a timeout for suggesting an unrecoverable error
+suggest_unrecoverable_after = 30
+start = time.time()
+
+while True:
+    try:
+        # Attempt to connect to PostgreSQL
+        psycopg.connect(
+            dbname="${POSTGRES_DB}",
+            user="${POSTGRES_USER}",
+            password="${POSTGRES_PASSWORD}",
+            host="${POSTGRES_HOST}",
+            port="${POSTGRES_PORT}",
+        )
+        # Break out of the loop if successful connection
+        break
+    except psycopg.OperationalError as error:
+        # Print a message while waiting for PostgreSQL to become available
+        sys.stderr.write("Waiting for PostgreSQL to become available...\n")
+
+        # Check if the waiting time exceeds the suggest_unrecoverable_after timeout
+        if time.time() - start > suggest_unrecoverable_after:
+            # Print a message suggesting an unrecoverable error if the timeout is exceeded
+            sys.stderr.write("  This is taking longer than expected. The following exception may be indicative of an unrecoverable error: '{}'\n".format(error))
+
+    # Wait for 1 second before retrying connection
+    time.sleep(1)
+
+# Print a message indicating PostgreSQL is available
+sys.stderr.write('PostgreSQL is available\n')
+END
+
+
+# Execute the command provided as arguments to the script
+exec "$@"

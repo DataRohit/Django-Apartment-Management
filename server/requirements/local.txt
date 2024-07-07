@@ -1,0 +1,23 @@
+-r base.txt
+
+
+# Python
+# ------------------------------------------------------------------------------
+Werkzeug[watchdog]==3.0.3 # https://github.com/pallets/werkzeug
+ipdb==0.13.13  # https://github.com/gotcha/ipdb
+psycopg==3.1.19  # https://github.com/psycopg/psycopg
+psycopg-binary==3.1.19  # https://github.com/psycopg/psycopg
+watchfiles==0.22.0  # https://github.com/samuelcolvin/watchfiles
+black==24.4.2  # https://github.com/psf/black
+isort==5.13.2  # https://github.com/pycqa/isort
+
+
+# Django
+# ------------------------------------------------------------------------------
+django-extensions==3.2.3  # https://github.com/django-extensions/django-extensions
+
+
+# Storage
+# ------------------------------------------------------------------------------
+boto3==1.34.140  # https://github.com/boto/boto3
+django-storages==1.14.3  # https://github.com/jschneier/django-storages

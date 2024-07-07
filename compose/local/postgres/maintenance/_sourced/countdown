@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+
+# Define the countdown function
+countdown() {
+    # Declare a description for the function
+    declare desc="A simple countdown. Source: https://superuser.com/a/611582"
+
+    # Extract the number of seconds from the function argument
+    local seconds="${1}"
+
+    # Calculate the end time in seconds since the epoch
+    local d=$(($(date +%s) + "${seconds}"))
+
+    # Loop until the end time is reached
+    while [ "$d" -ge `date +%s` ]; do
+        # Print the remaining time in HH:MM:SS format
+        echo -ne "$(date -u --date @$(($d - `date +%s`)) +%H:%M:%S)\r";
+
+        # Sleep for 0.1 second
+        sleep 0.1
+    done
+}

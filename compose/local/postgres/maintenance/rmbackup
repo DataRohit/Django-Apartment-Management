@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+
+# Set bash to exit immediately if a command fails
+set -o errexit
+# Return a non-zero exit status if any part of a pipeline fails
+set -o pipefail
+# Treat unset variables as an error when expanding them
+set -o nounset
+
+
+# Get the directory of the script
+working_dir="$(dirname ${0})"
+
+
+# Source the constants and messages scripts
+source "${working_dir}/_sourced/constants.sh"
+source "${working_dir}/_sourced/messages.sh"
+
+
+# Check if the backup filename is provided as the first argument
+if [[ -z ${1+x} ]]; then
+    message_error "Backup filename is not specified yet it is a required parameter. Make sure you provide one and try again."
+    exit 1
+fi
+
+
+# Set the backup filename
+backup_filename="${BACKUP_DIR_PATH}/${1}"
+
+
+# Check if the backup file exists
+if [[ ! -f "${backup_filename}" ]]; then
+    message_error "No backup with the specified filename found. Check out the 'backups' maintenance script output to see if there is one and try again."
+    exit 1
+fi
+
+
+# Display a welcome message
+message_welcome "Removing the '${backup_filename}' backup file..."
+
+
+# Remove the backup file
+rm -r "${backup_filename}"
+
+
+# Display a success message
+message_success "The '${backup_filename}' database backup has been removed."

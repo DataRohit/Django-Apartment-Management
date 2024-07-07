@@ -1,0 +1,38 @@
+# Set the project root
+root = true
+
+
+# Default settings for all files
+[*]
+charset = utf-8                    # Set charset to UTF-8
+end_of_line = lf                   # Set line endings to LF (Unix-style)
+insert_final_newline = true        # Insert a final newline at the end of the file
+trim_trailing_whitespace = true    # Trim trailing whitespace from lines
+
+
+# Python, reStructuredText, INI files
+[*.{py,rst,ini}]
+indent_style = space              # Use space for indentation
+indent_size = 4                   # Set indentation size to 4 spaces
+
+
+# HTML, CSS, SCSS, JSON, YAML, XML files
+[*.{html,css,scss,json,yml,xml}]
+indent_style = space              # Use space for indentation
+indent_size = 4                   # Set indentation size to 4 spaces
+
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false  # Do not trim trailing whitespace from Markdown files
+
+
+# Makefile
+[Makefile]
+indent_style = tab                # Use tab for indentation
+
+
+# Configuration files
+[default.conf]
+indent_style = space              # Use space for indentation
+indent_size = 4                   # Set indentation size to 4 spaces

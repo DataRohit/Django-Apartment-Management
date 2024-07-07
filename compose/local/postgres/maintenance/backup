@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+
+# Set bash to exit immediately if a command fails
+set -o errexit
+# Return a non-zero exit status if any part of a pipeline fails
+set -o pipefail
+# Treat unset variables as an error when expanding them
+set -o nounset
+
+
+# Get the directory of the script
+working_dir="$(dirname ${0})"
+
+
+# Source the constants and messages scripts
+source "${working_dir}/_sourced/constants.sh"
+source "${working_dir}/_sourced/messages.sh"
+
+
+# Display a welcome message
+message_welcome "Backing up the '${POSTGRES_DB}' database..."
+
+
+# Check if POSTGRES_USER is 'postgres' (unsupported)
+if [[ "${POSTGRES_USER}" == "postgres" ]]; then
+    message_error "Backing up as 'postgres' user is not supported. Assign 'POSTGRES_USER' env with another one and try again."
+    exit 1
+fi
+
+
+# Set PostgreSQL connection parameters
+export PGHOST="${POSTGRES_HOST}"
+export PGPORT="${POSTGRES_PORT}"
+export PGUSER="${POSTGRES_USER}"
+export PGPASSWORD="${POSTGRES_PASSWORD}"
+export PGDATABASE="${POSTGRES_DB}"
+
+
+# Create a backup filename with timestamp
+backup_filename="${BACKUP_FILE_PREFIX}_$(date +'%Y_%m_%dT%H_%M_%S').sql.gz"
+
+
+# Dump the database and compress the output
+pg_dump | gzip > "${BACKUP_DIR_PATH}/${backup_filename}"
+
+
+# Display a success message
+message_success "'${POSTGRES_DB}' database backup '${backup_filename}' has been created and placed in '${BACKUP_DIR_PATH}'."
