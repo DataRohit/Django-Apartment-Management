@@ -23,6 +23,10 @@ if READ_DOT_ENV_FILE:
     env.read_env(str(BASE_DIR / ".env"))
 
 
+# Set the auth user model
+AUTH_USER_MODEL = "users.User"
+
+
 # General
 # ------------------------------------------------------------------------------
 DEBUG = env.bool("DJANGO_DEBUG", False)
@@ -76,7 +80,9 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "djcelery_email",
 ]
-LOCAL_APPS = []
+LOCAL_APPS = [
+    "apps.users",
+]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 
