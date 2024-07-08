@@ -76,7 +76,7 @@ class ApartmentListAPIView(generics.ListAPIView):
 
     serializer_class = ApartmentSerializer
     renderer_classes = (GenericJSONRenderer,)
-    object_label = "apartment"
+    object_label = "apartments"
 
     def get_queryset(self):
         """Method to get the queryset.
