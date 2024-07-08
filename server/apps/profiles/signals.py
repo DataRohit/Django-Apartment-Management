@@ -1,6 +1,6 @@
 # Imports
 import logging
-from typing import Any, Type
+from typing import Dict, Type
 from apps.profiles.models import Profile
 from config.settings.base import AUTH_USER_MODEL
 from django.db.models.base import Model
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=AUTH_USER_MODEL)
 def create_user_profile(
-    sender: Type[Model], instance: Model, created: bool, **kwargs: Any
+    sender: Type[Model], instance: Model, created: bool, **kwargs: Dict
 ) -> None:
     """Signal to create a profile for the user.
 

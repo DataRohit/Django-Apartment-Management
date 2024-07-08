@@ -1,12 +1,11 @@
 # Imports
 import os
 import uuid
-from typing import Any
+from typing import Dict
 from apps.common.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Avg
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
@@ -151,10 +150,14 @@ class Profile(TimeStampedModel):
         self.reputation = max(0, 100 - self.report_count * 20)
 
     # Method to save the profile
-    def save(self, *args: Any, **kwargs: Any) -> None:
+    def save(self, *args: Dict, **kwargs: Dict) -> None:
         """Save the profile
 
         This method is used to save the profile.
+
+        Arguments:
+            *args: Dict -- The arguments.
+            **kwargs: Dict -- The keyword arguments.
         """
         self.update_reputation()
         super().save(*args, **kwargs)
