@@ -43,7 +43,7 @@ def avatar_upload_to(instance: "Profile", filename: str) -> str:
         str -- The unique filename.
     """
 
-    ext = filename.split('.')[-1]
+    ext = filename.split(".")[-1]
     filename = f"{uuid.uuid4()}.{ext}"
 
     return os.path.join("avatars/", filename)
@@ -100,7 +100,9 @@ class Profile(TimeStampedModel):
 
     # Fields
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    avatar = models.FileField(_("Avatar"), upload_to=avatar_upload_to, blank=True, null=True)
+    avatar = models.ImageField(
+        _("Avatar"), upload_to=avatar_upload_to, blank=True, null=True
+    )
     gender = models.CharField(
         _("Gender"), choices=Gender.choices, max_length=10, default=Gender.OTHER
     )

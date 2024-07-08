@@ -1,4 +1,6 @@
 # Imports
+import os
+import uuid
 from typing import List, Dict
 from apps.common.renderers import GenericJSONRenderer
 from apps.profiles.models import Profile
@@ -7,8 +9,9 @@ from apps.profiles.serializers import (
     ProfileSerializer,
     UpdateProfileSerializer,
 )
-from apps.profiles.tasks import upload_avatar_to_cloudinary
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
 from django.db.models import QuerySet
 from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -225,7 +228,7 @@ class AvatarUploadAPIView(APIView):
     def upload_avatar(self, request: Request, *args: Dict, **kwargs: Dict) -> Response:
         """Method to upload the avatar.
 
-        This method uploads the avatar to Cloudinary.
+        This method uploads the avatar to the user's profile.
 
         Arguments:
             request: Request -- The request object.
@@ -239,18 +242,33 @@ class AvatarUploadAPIView(APIView):
             Http404: If the profile does not exist.
         """
 
-        profile = request.user.profile
+        try:
+            profile = request.user.profile
+        except ObjectDoesNotExist:
+            raise Http404("Profile does not exist")
 
         serializer = AvatarUploadSerializer(profile, data=request.data)
 
         if serializer.is_valid():
             image = serializer.validated_data.get("avatar")
+
+            if image is None:
+                return Response(
+                    {"avatar": ["This field is required."]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             image_content = image.read()
-            upload_avatar_to_cloudinary.delay(profile.id, image_content)
+
+            ext = os.path.splitext(image.name)[1]
+
+            image_name = f"{uuid.uuid4()}{ext}"
+
+            profile.avatar.save(image_name, ContentFile(image_content))
 
             return Response(
-                {"message": "Avatar uploaded started"},
-                status=status.HTTP_202_ACCEPTED,
+                {"message": "Avatar uploaded successfully"},
+                status=status.HTTP_200_OK,
             )
 
         return Response(
