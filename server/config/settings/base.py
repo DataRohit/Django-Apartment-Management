@@ -224,13 +224,20 @@ CORS_URLS_REGEX = r"^/api/.*$"
 TAGGIT_CASE_INSENSITIVE = True
 
 
+# Cookies
+# -------------------------------------------------------------------------------
+COOKIE_NAME = "access"
+COOKIE_SAMESITE = "Lax"
+COOKIE_PATH = "/"
+COOKIE_HTTPONLY = True
+COOKIE_SECURE = env.bool("COOKIE_SECURE", default=True)
+
+
 # Django REST Framework
 # -------------------------------------------------------------------------------
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
-    ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticatedOrReadOnly",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("apps.common.cookie_auth.CookieAuthentication",),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -254,4 +261,34 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
 }
+
+# Djoser Config
+# -------------------------------------------------------------------------------
+DJOSER = {
+    "USER_ID_FIELD": "id",
+    "LOGIN_FIELD": "email",
+    "TOKEN_MODEL": None,
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "SEND_ACTIVATION_EMAIL": True,
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "PASSWORD_RESET_CONFIRM_RETYPE": True,
+    "ACTIVATION_URL": "activate/{uid}/{token}/",
+    "PASSWORD_RESET_CONFIRM_URL": "password-reset/{uid}/{token}/",
+    "SERIALIZERS": {
+        "user_create": "apps.users.serializers.CreateUserSerializer",
+    },
+}
+
+# Social Auth
+# -------------------------------------------------------------------------------
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env.str("GOOGLE_CLIENT_ID")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env.str("GOOGLE_CLIENT_SECRET")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "openid",
+]
+SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ["first_name", "last_name"]
