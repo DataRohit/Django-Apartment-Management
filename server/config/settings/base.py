@@ -68,7 +68,7 @@ DJANGO_APPS = [
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
-    'storages',
+    "storages",
     "django_celery_beat",
     "rest_framework",
     "corsheaders",
@@ -91,6 +91,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # Authentication
 # ------------------------------------------------------------------------------
 AUTHENTICATION_BACKENDS = [
+    "social_core.backends.google.GoogleOAuth2",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
