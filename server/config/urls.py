@@ -1,12 +1,13 @@
 # Imports
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path
-
+from django.urls import include, path
 
 # Set the django urls
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
+    path("api/v1/auth/", include("djoser.urls")),
+    path("api/v1/auth/", include("apps.users.urls")),
 ]
 
 
