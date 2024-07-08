@@ -1,6 +1,6 @@
 # Imports
 from django.contrib import admin
-from .models import Profile
+from apps.profiles.models import Profile
 
 
 @admin.register(Profile)
