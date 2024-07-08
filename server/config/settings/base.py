@@ -213,6 +213,12 @@ CELERY_TASK_SOFT_TIME_LIMIT = 60
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
+CELERY_BEAT_SCHEDULE = {
+    "update-reputations-every-day": {
+        "task": "update_all_reputations",
+        "schedule": timedelta(days=1),
+    },
+}
 
 
 # Django CORS Headers
