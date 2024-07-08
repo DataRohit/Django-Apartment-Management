@@ -21,6 +21,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         country_of_origin: str -- The country of origin of the user.
         avatar: str -- The avatar of the user.
         date_joined: datetime -- The date the user joined.
+        apartment: list -- The apartments of the user.
+        average_rating: float -- The average rating of the user.
 
     Meta:
         model: Profile -- The profile model.
@@ -35,6 +37,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
     date_joined = serializers.DateTimeField(source="user.date_joined", read_only=True)
     apartment = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         """Meta Class.
@@ -61,6 +64,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "date_joined",
             "avatar",
             "apartment",
+            "average_rating",
         ]
 
     def get_avatar(self, obj: Profile) -> str | None:
@@ -84,7 +88,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             obj: Profile -- The profile object.
 
         Returns:
-            list -- The apartments of the user.
+            list: The apartments of the user.
         """
 
         apartments = obj.user.apartment.all()
@@ -93,6 +97,18 @@ class ProfileSerializer(serializers.ModelSerializer):
             return ApartmentSerializer(apartments, many=True).data
 
         return None
+
+    def get_average_rating(self, obj: Profile) -> float:
+        """Get the average rating of the user.
+
+        Arguments:
+            obj: Profile -- The profile object.
+
+        Returns:
+            float: The average rating of the user.
+        """
+
+        return obj.get_average_rating()
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
