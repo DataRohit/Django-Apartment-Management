@@ -60,6 +60,7 @@ STATICFILES_STORAGE = "config.settings.storage_backends.StaticStorage"
 # Media files settings
 # ------------------------------------------------------------------------------
 MEDIA_URL = f"http://localhost:8080/alpha-apartments/media/"
+DEFAULT_FILE_STORAGE = "config.settings.storage_backends.MediaStorage"
 
 
 # Static files finders and directories
