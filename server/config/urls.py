@@ -2,6 +2,11 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 # Set the django urls
 urlpatterns = [
@@ -14,6 +19,22 @@ urlpatterns = [
     path("api/v1/reports/", include("apps.reports.urls")),
     path("api/v1/ratings/", include("apps.ratings.urls")),
     path("api/v1/posts/", include("apps.posts.urls")),
+]
+
+
+# Swagger urls
+urlpatterns += [
+    path("api/v1/schema/", SpectacularAPIView.as_view(), name="swagger-schema"),
+    path(
+        "api/v1/swagger/",
+        SpectacularSwaggerView.as_view(url_name="swagger-schema"),
+        name="swagger-ui",
+    ),
+    path(
+        "api/v1/redoc/",
+        SpectacularRedocView.as_view(url_name="swagger-schema"),
+        name="swagger-redoc",
+    ),
 ]
 
 

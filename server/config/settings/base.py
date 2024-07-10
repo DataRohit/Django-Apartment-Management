@@ -79,6 +79,8 @@ THIRD_PARTY_APPS = [
     "taggit",
     "django_filters",
     "djcelery_email",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 LOCAL_APPS = [
     "apps.users",
@@ -262,6 +264,7 @@ COOKIE_SECURE = env.bool("COOKIE_SECURE", default=True)
 # Django REST Framework
 # -------------------------------------------------------------------------------
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": ("apps.common.cookie_auth.CookieAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -277,6 +280,20 @@ REST_FRAMEWORK = {
         "anon": "200/day",
         "user": "500/day",
     },
+}
+
+
+# DRF Spectacular Config
+# -------------------------------------------------------------------------------
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Alpha Apartments API",
+    "DESCRIPTION": "Alpha Apartments web portal lets tenants report issues, report other tenants, and securely share incidents. It effectively uses Django REST Framework for the backend and DRF Spectacular for the API documentation.",
+    "VERSION": "1.0.0",
+    "CONTACT": {"name": "Rohit Vilas Ingole", "email": "rohit.vilas.ingole@gmail.com"},
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
 }
 
 
