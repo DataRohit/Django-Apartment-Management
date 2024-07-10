@@ -95,7 +95,7 @@ class User(AbstractUser):
         ordering = ["-date_joined"]
 
     @property
-    def get_full_name(self) -> str:
+    def full_name(self) -> str:
         """Get the user's full name.
 
         Returns:
