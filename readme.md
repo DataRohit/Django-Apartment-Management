@@ -105,7 +105,7 @@
 ### **Installation**
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/yourusername/alpha-apartments.git
+    git clone https://github.com/DataRohit/Django-Apartment-Management.git
     cd alpha-apartments
     ```
 
