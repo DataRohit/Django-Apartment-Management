@@ -126,7 +126,7 @@
 **This project is licensed under the MIT License - see the [LICENSE](https://github.com/DataRohit/Django-Apartment-Management/blob/master/license) file for details.**
 
 ## 📞 Contact
-**For any inquiries or support, please reach out to [rohit.ingole@example.com](mailto:rohit.vilas.ingole@example.com).**
+**For any inquiries or support, please reach out to [rohit.vilas.ingole@gmail.com](mailto:rohit.vilas.ingole@gmail.com).**
 
 ---
 
