@@ -67,9 +67,6 @@
 - **Redis**: Message broker for Celery
 - **MinIO**: Object storage for static and media files
 
-### **Frontend**
-- **Streamlit**: Interactive web application framework
-
 ## **📦 Deployment**
 
 ### **Docker**
