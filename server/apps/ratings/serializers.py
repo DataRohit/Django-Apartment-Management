@@ -3,8 +3,9 @@ from apps.ratings.models import Rating
 from rest_framework import serializers
 
 
+# Rating Serializer
 class RatingSerializer(serializers.ModelSerializer):
-    """Rating Serializer.
+    """Rating serializer.
 
     This class is used to serialize a rating.
 
@@ -12,30 +13,31 @@ class RatingSerializer(serializers.ModelSerializer):
         serializers.ModelSerializer
 
     Attributes:
-        rated_user_username: str -- The username of the rated user.
+        rated_user_username (CharField): The username of the rated user.
 
-    Meta:
-        model: Rating -- The rating model.
-        fields: list -- The fields to serialize.
-        read_only_fields: list -- The fields that are read only.
+    Meta Class:
+        model (Rating): The rating model.
+        fields (list): The fields to include in the serialized data.
+        read_only_fields (list): The fields that are read-only.
 
-    Methods:
-        create: Creates a rating.
+    Returns:
+        Rating: The rating object.
     """
 
+    # Attributes
     rated_user_username = serializers.CharField(write_only=True)
 
+    # Meta Class
     class Meta:
-        """Meta Class.
-
-        The meta class for the serializer.
+        """Meta Class
 
         Attributes:
-            model: Rating -- The rating model.
-            fields: list -- The fields to serialize.
-            read_only_fields: list -- The fields that are read only.
+            model (Rating): The rating model.
+            fields (list): The fields to include in the serialized data.
+            read_only_fields (list): The fields that are read-only.
         """
 
+        # Attributes
         model = Rating
         fields = [
             "id",
@@ -45,16 +47,19 @@ class RatingSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id"]
 
+    # Method to create a rating
     def create(self, validated_data: dict) -> Rating:
-        """Creates a rating.
+        """Method to create a rating.
 
-        Arguments:
-            validated_data: dict -- The validated data.
+        Args:
+            validated_data (dict): The validated data.
 
         Returns:
-            Rating: The created rating.
+            Rating: The rating object.
         """
 
+        # Pop the rated user username
         validated_data.pop("rated_user_username")
 
+        # Create the rating object
         return Rating.objects.create(**validated_data)

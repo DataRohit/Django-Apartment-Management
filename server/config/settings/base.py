@@ -4,7 +4,6 @@ from pathlib import Path
 import environ
 from django.utils.timezone import timedelta
 
-
 # Base directory of the Django project
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 
@@ -192,7 +191,7 @@ EMAIL_TIMEOUT = 5
 # Admin
 # ------------------------------------------------------------------------------
 ADMIN_URL = "admin/"
-ADMINS = [("""Rohit Vilas Ingole""", "alpha-apartments@example.com")]
+ADMINS = [("""Rohit Vilas Ingole""", "datarohit@alpha-apartments.com")]
 MANAGERS = ADMINS
 
 

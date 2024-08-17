@@ -68,7 +68,12 @@
 - **MinIO**: Object storage for static and media files
 
 ### **Frontend**
-- **Streamlit**: Interactive web application framework
+- **NextJS**: Frontend Web Framework
+- **Heroicons**: Icon Library
+- **TailwindCSS**: CSS Utility Class Package
+- **Redux**: Statement Management
+- **Zod**: Data and Schema Validation
+- **Axios**: HTTP Request and Response Package
 
 ## **📦 Deployment**
 
@@ -77,6 +82,7 @@
 
 - **Services**: 
   - `server`: Django backend
+  - `client`: NextJS frontend
   - `postgres`: PostgreSQL database
   - `minio`: MinIO object storage
   - `mailpit`: Mail server for development
@@ -105,7 +111,7 @@
 ### **Installation**
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/yourusername/alpha-apartments.git
+    git clone https://github.com/DataRohit/Django-Apartment-Management.git
     cd alpha-apartments
     ```
 
@@ -116,6 +122,7 @@
 
 3. **Access the application:**
     - **Backend:** `http://localhost:8080/api/v1/`
+    - **Frontend** `http://localhost:8080/`
     - **Swagger Redoc:** `http://localhost:8080/api/v1/redoc/`
     - **Swagger Playground:** `http://localhost:8080/api/v1/swagger/`
     - **Minio:** `http://localhost:9090/`
@@ -126,7 +133,7 @@
 **This project is licensed under the MIT License - see the [LICENSE](https://github.com/DataRohit/Django-Apartment-Management/blob/master/license) file for details.**
 
 ## 📞 Contact
-**For any inquiries or support, please reach out to [rohit.ingole@example.com](mailto:rohit.vilas.ingole@example.com).**
+**For any inquiries or support, please reach out to [rohit.vilas.ingole@gmail.com](mailto:rohit.vilas.ingole@gmail.com).**
 
 ---
 

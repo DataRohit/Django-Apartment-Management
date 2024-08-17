@@ -5,64 +5,68 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 
-
 # Get the user model
 User = get_user_model()
 
 
+# Create User Serializer
 class CreateUserSerializer(UserCreateSerializer):
-    """Create User Serializer.
+    """CreateUserSerializer
 
-    This class is used to create a user.
+    CreateUserSerializer class is used to create a user.
 
     Extends:
         UserCreateSerializer
 
-    Meta:
-        model: User -- The user model.
-        fields: tuple -- The fields to include.
-        extra_kwargs: dict -- The extra keyword arguments.
+    Meta Class:
+        model (User): The user model.
+        fields (tuple): The fields to include in the serialized data.
+        extra_kwargs (dict): The extra keyword arguments.
     """
 
+    # Meta Class
     class Meta(UserCreateSerializer.Meta):
-        """Meta Class.
+        """Meta Class
 
         Attributes:
-            model: User -- The user model.
-            fields: tuple -- The fields to include.
-            extra_kwargs: dict -- The extra keyword arguments.
+            model (User): The user model.
+            fields (tuple): The fields to include in the serialized data.
+            extra_kwargs (dict): The extra keyword arguments.
         """
 
+        # Attributes
         model = User
         fields = ("id", "email", "username", "first_name", "last_name", "password")
         extra_kwargs = {"password": {"write_only": True}}
 
 
+# Custom User Serializer
 class CustomUserSerializer(UserSerializer):
-    """Custom User Serializer.
+    """CustomUserSerializer
 
-    This class is used to serialize a user.
+    CustomUserSerializer class is used to serialize a user.
 
     Extends:
         UserSerializer
 
     Attributes:
-        full_name: str -- The full name of the the user.
-        gender: str -- Gender of the user.
-        slug: str -- The slug of the user.
-        occupation: str -- The occupation of the user.
-        phone_number: str -- The phone number of the user.
-        country: str -- The country of the user.
-        city: str -- The city of the user.
-        avatar: str -- The avatar of the user.
-        reputation: int -- The reputation of the user.
+        full_name (ReadOnlyField): The full name of the user.
+        gender (ReadOnlyField): The gender of the user's profile.
+        slug (ReadOnlyField): The slug of the user's profile.
+        occupation (ReadOnlyField): The occupation of the user's profile.
+        phone_number (PhoneNumberField): The phone number of the user's profile.
+        country (CountryField): The country of origin of the user's profile.
+        city (ReadOnlyField): The city of origin of the user's profile.
+        avatar (ReadOnlyField): The avatar URL of the user's profile.
+        reputation (ReadOnlyField): The reputation of the user's profile.
 
-    Meta:
-        model: User -- The user model.
-        fields: tuple -- The fields to include.
-        read_only_fields: tuple -- The fields that are read only.
+    Meta Class:
+        model (User): The user model.
+        fields (tuple): The fields to include in the serialized data.
+        read_only_fields (tuple): The fields to make read-only.
     """
 
+    # Attributes
     full_name = serializers.ReadOnlyField()
     gender = serializers.ReadOnlyField(source="profile.gender")
     slug = serializers.ReadOnlyField(source="profile.slug")
@@ -73,15 +77,17 @@ class CustomUserSerializer(UserSerializer):
     avatar = serializers.ReadOnlyField(source="profile.avatar.url")
     reputation = serializers.ReadOnlyField(source="profile.reputation")
 
+    # Meta Class
     class Meta(UserSerializer.Meta):
-        """Meta Class.
+        """Meta Class
 
         Attributes:
-            model: User -- The user model.
-            fields: tuple -- The fields to include.
-            read_only_fields: tuple -- The fields that are read only.
+            model (User): The user model.
+            fields (tuple): The fields to include in the serialized data.
+            read_only_fields (tuple): The fields to make read-only.
         """
 
+        # Attributes
         model = User
         fields = (
             "id",

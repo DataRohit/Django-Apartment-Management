@@ -5,21 +5,26 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 
 
+# Register the Report model with the admin panel
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    """Report Admin.
+    """ReportAdmin
 
-    This class defines the report admin interface.
+    ReportAdmin class is used to customize the admin panel for the Report model.
+
+    Extends:
+        admin.ModelAdmin
 
     Attributes:
-        list_display: list -- The list display fields.
-        search_fields: list -- The search fields.
+        list_display (list): A list of fields to display in the admin panel.
+        search_fields (list): A list of fields to search by.
 
     Methods:
         get_queryset: Get the queryset.
         get_report_count: Get the report count.
     """
 
+    # Attributes
     list_display = [
         "title",
         "reported_by",
@@ -34,34 +39,39 @@ class ReportAdmin(admin.ModelAdmin):
         "reported_user__last_name",
     ]
 
+    # Method to get the queryset
     def get_queryset(self, request: HttpRequest) -> QuerySet[Report]:
-        """Get the queryset.
+        """Get the queryset
 
-        This method overrides the default get_queryset method to select related fields.
-
-        Arguments:
-            request: HttpRequest -- The request object.
+        Args:
+            request (HttpRequest): The request object.
 
         Returns:
             QuerySet[Report]: The queryset.
         """
 
+        # Get the queryset
         queryset = super().get_queryset(request)
+
+        # Get the related fields
         queryset = queryset.select_related("reported_user__profile")
+
+        # Return the queryset
         return queryset
 
+    # Method to get the report count
     def get_report_count(self, obj: Report) -> int:
         """Get the report count.
 
-        This method gets the report count for the reported user.
-
-        Arguments:
-            obj: Report -- The report object.
+        Args:
+            obj (Report): The Report object.
 
         Returns:
             int: The report count.
         """
 
+        # Return the report count
         return obj.reported_user.profile.report_count
 
+    # Set the short description for the report count
     get_report_count.short_description = "Report Count"

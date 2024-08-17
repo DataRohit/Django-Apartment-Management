@@ -6,7 +6,6 @@ from pathlib import Path
 import environ
 from django.core.wsgi import get_wsgi_application
 
-
 # Initialize environment variables
 env = environ.Env()
 

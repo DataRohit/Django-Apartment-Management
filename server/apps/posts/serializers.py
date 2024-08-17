@@ -8,76 +8,82 @@ from rest_framework import serializers
 from taggit.models import Tag
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-
 # Get the user model
 User = get_user_model()
 
 
+# PopularTagSerializer
 class PopularTagSerializer(serializers.ModelSerializer):
-    """Popular tag serializer.
+    """PopularTagSerializer
 
-    This class is used to serialize a popular tag.
+    PopularTagSerializer class is used to serialize a popular tag.
 
     Extends:
         serializers.ModelSerializer
 
     Attributes:
-        post_count: int -- The number of posts with the tag.
+        post_count (IntegerField): The number of posts with the tag.
 
-    Meta:
-        model: Tag -- The tag model.
-        fields: list -- The fields to serialize.
+    Meta Class:
+        model (Tag): The Tag model.
     """
 
+    # Attributes
     post_count = serializers.IntegerField(read_only=True)
 
+    # Meta Class
     class Meta:
-        """Meta class for the PopularTagSerializer.
+        """Meta Class
 
         Attributes:
-            model: Tag -- The tag model.
-            fields: list -- The fields to serialize.
+            model (Tag): The Tag model.
+            fields (list): The fields to include in the serialized data.
         """
 
+        # Attributes
         model = Tag
         fields = ["name", "slug", "post_count"]
 
 
+# TopPostSerialzier
 class TopPostSerialzier(serializers.ModelSerializer):
-    """Top post serializer.
+    """TopPostSerialzier
 
-    This class is used to serialize a top post.
+    TopPostSerialzier class is used to serialize a top post.
 
     Extends:
         serializers.ModelSerializer
 
     Attributes:
-        author_username: str -- The username of the author.
-        replies_count: int -- The number of replies.
-        view_count: int -- The number of views.
-        avatar: str | None -- The avatar of the author.
+        author_username (CharField): The username of the author.
+        replies_count (IntegerField): The number of replies.
+        view_count (IntegerField): The number of views.
+        avatar (SerializerMethodField): The avatar of the author.
 
-    Meta:
-        model: Post -- The post model.
-        fields: list -- The fields to serialize.
+    Meta Class:
+        model (Post): The Post model.
+        fields (list): The fields to include in the serialized data.
 
     Methods:
-        get_avatar: Gets the avatar of the author.
+        get_avatar(obj: Post) -> str | None: Get the avatar of the author.
     """
 
+    # Attributes
     author_username = serializers.CharField(source="author.username", read_only=True)
     replies_count = serializers.IntegerField(read_only=True)
     view_count = serializers.IntegerField(read_only=True)
     avatar = serializers.SerializerMethodField()
 
+    # Meta Class
     class Meta:
-        """Meta class for the TopPostSerialzier.
+        """Meta Class
 
         Attributes:
-            model: Post -- The post model.
-            fields: list -- The fields to serialize.
+            model (Post): The Post model.
+            fields (list): The fields to include in the serialized data.
         """
 
+        # Attributes
         model = Post
         fields = [
             "id",
@@ -91,57 +97,65 @@ class TopPostSerialzier(serializers.ModelSerializer):
             "created_at",
         ]
 
+    # Method to get the avatar of the author
     def get_avatar(self, obj: Post) -> str | None:
-        """Method to get the avatar of the author.
+        """Get the avatar of the author.
 
-        Arguments:
-            obj: Post -- The post instance.
+        Args:
+            obj (Post): The post.
 
         Returns:
             str | None: The avatar of the author.
         """
 
+        # If the author has an avatar
         if obj.author.profile.avatar:
+            # Return the avatar
             return obj.author.profile.avatar.url
 
+        # Return None
         return None
 
 
+# ReplySerializer
 class ReplySerializer(serializers.ModelSerializer):
-    """Reply serializer.
+    """ReplySerializer
 
-    This class is used to serialize a reply.
+    ReplySerializer class is used to serialize a reply.
 
     Extends:
         serializers.ModelSerializer
 
     Attributes:
-        author_username: str -- The username of the author.
-        post: uuid4 -- The ID of the post.
-        avatar: str | None -- The avatar of the author.
+        author_username (CharField): The username of the author.
+        post (PrimaryKeyRelatedField): The post.
+        avatar (SerializerMethodField): The avatar of the author.
 
-    Meta:
-        model: Reply -- The reply model.
-        fields: list -- The fields to serialize.
-        read_only_fields: list -- The fields that are read only.
+    Meta Class:
+        model (Reply): The Reply model.
+        fields (list): The fields to include in the serialized data.
+        read_only_fields (list): The fields that are read-only.
 
     Methods:
-        get_avatar: Gets the avatar of the author.
+        get_avatar(obj: Post) -> str | None: Get the avatar of the author.
     """
 
+    # Attributes
     author_username = serializers.CharField(source="author.username", read_only=True)
     post = serializers.PrimaryKeyRelatedField(read_only=True)
     avatar = serializers.SerializerMethodField()
 
+    # Meta Class
     class Meta:
-        """Meta class for the ReplySerializer.
+        """Meta Class
 
         Attributes:
-            model: Reply -- The reply model.
-            fields: list -- The fields to serialize.
-            read_only_fields: list -- The fields that are read only.
+            model (Reply): The Reply model.
+            fields (list): The fields to include in the serialized data.
+            read_only_fields (list): The fields that are read-only.
         """
 
+        # Attributes
         model = Reply
         fields = [
             "id",
@@ -154,160 +168,200 @@ class ReplySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "author_username", "created_at", "updated_at"]
 
+    # Method to get the avatar of the author
     def get_avatar(self, obj: Post) -> str | None:
-        """Method to get the avatar of the author.
+        """Get the avatar of the author.
 
-        Arguments:
-            obj: Post -- The post instance.
+        Args:
+            obj (Post): The post.
 
         Returns:
             str | None: The avatar of the author.
         """
 
+        # If the author has an avatar
         if obj.author.profile.avatar:
+            # Return the avatar
             return obj.author.profile.avatar.url
 
+        # Return None
         return None
 
 
+# UpvotePostSerializer
 class UpvotePostSerializer(serializers.ModelSerializer):
-    """Upvote post serializer.
+    """UpvotePostSerializer
 
-    This class is used to serialize an upvote on a post.
+    UpvotePostSerializer class is used to serialize an upvote post request.
 
     Extends:
         serializers.ModelSerializer
 
-    Meta:
-        model: Post -- The post model.
-        fields: list -- The fields to serialize.
+    Meta Class:
+        model (Post): The Post model.
+        fields (list): The fields to include in the serialized data.
 
     Methods:
-        update: Updates the post with an upvote.
+        update(instance: Post, validated_data: dict) -> Post: Update the post.
     """
 
+    # Meta Class
     class Meta:
-        """Meta class for the UpvotePostSerializer.
+        """Meta Class
 
         Attributes:
-            model: Post -- The post model.
-            fields: list -- The fields to serialize.
+            model (Post): The Post model.
+            fields (list): The fields to include in the serialized data.
         """
 
+        # Attributes
         model = Post
         fields = []
 
+    # Method to update the post
     def update(self, instance: Post, validated_data: dict) -> Post:
-        """Method to update the post with an upvote.
+        """Update the post.
 
-        Arguments:
-            instance: Post -- The post instance.
-            validated_data: dict -- The validated data.
+        Args:
+            instance (Post): The post instance.
+            validated_data (dict): The validated data.
 
         Returns:
             Post: The updated post.
+
+        Raises:
+            Exception: If the email sending fails.
         """
 
+        # Get the user
         user = self.context.get("request").user
 
+        # If the user has not upvoted the post
         if user not in instance.upvoted_by.all():
+            # Add the user to the upvoted by list
             instance.upvoted_by.add(user)
+
+            # Update the upvotes
             instance.upvotes = F("upvotes") + 1
+
+            # Save the instance
             instance.save()
 
+        # Return the instance
         return instance
 
 
+# DownvotePostSerializer
 class DownvotePostSerializer(serializers.ModelSerializer):
-    """Downvote post serializer.
+    """DownvotePostSerializer
 
-    This class is used to serialize an downvote on a post.
+    DownvotePostSerializer class is used to serialize a downvote post request.
 
     Extends:
         serializers.ModelSerializer
 
-    Meta:
-        model: Post -- The post model.
-        fields: list -- The fields to serialize.
+    Meta Class:
+        model (Post): The Post model.
+        fields (list): The fields to include in the serialized data.
 
     Methods:
-        update: Updates the post with an downvote.
+        update(instance: Post, validated_data: dict) -> Post: Update the post.
     """
 
+    # Meta Class
     class Meta:
-        """Meta class for the DownvotePostSerializer.
+        """Meta Class
 
         Attributes:
-            model: Post -- The post model.
-            fields: list -- The fields to serialize.
+            model (Post): The Post model.
+            fields (list): The fields to include in the serialized data.
         """
 
+        # Attributes
         model = Post
         fields = []
 
+    # Method to update the post
     def update(self, instance: Post, validated_data: dict) -> Post:
-        """Method to update the post with an downvote.
+        """Update the post.
 
-        Arguments:
-            instance: Post -- The post instance.
-            validated_data: dict -- The validated data.
+        Args:
+            instance (Post): The post instance.
+            validated_data (dict): The validated data.
 
         Returns:
             Post: The updated post.
         """
 
+        # Get the user
         user = self.context.get("request").user
 
+        # If the user has not downvoted the post
         if user in instance.upvoted_by.all():
+            # Add the user to the downvoted by list
             instance.upvoted_by.remove(user)
+
+            # Update the upvotes
             instance.upvotes = F("upvotes") - 1
 
+        # If the user has not downvoted the post
         if user not in instance.downvoted_by.all():
+            # Add the user to the downvoted by list
             instance.downvoted_by.add(user)
+
+            # Update the downvotes
             instance.downvotes = F("downvotes") + 1
 
+        # Else
         else:
+            # Remove the user from the downvoted by list
             instance.downvoted_by.remove(user)
+
+            # Update the downvotes
             instance.downvotes = F("downvotes") - 1
 
+        # Save the instance and refresh from the database
         instance.save()
         instance.refresh_from_db()
 
+        # Return the instance
         return instance
 
 
+# BasePostSerializer
 class BasePostSerializer(serializers.ModelSerializer):
-    """Base post serializer.
+    """BasePostSerializer
 
-    This class is used to serialize a post.
+    BasePostSerializer class is used to serialize a base post.
 
     Extends:
         serializers.ModelSerializer
 
     Attributes:
-        author_username: str -- The username of the author.
-        is_bookmarked: bool -- True if the post is bookmarked by the user, False otherwise.
-        created_at: str -- The created_at field.
-        updated_at: str -- The updated_at field.
-        view_count: int -- The view_count field.
-        is_upvoted: bool -- True if the post is upvoted by the user, False otherwise.
-        replies_count: int -- The number of replies.
-        avatar: str | None -- The avatar of the author.
+        author_username (ReadOnlyField): The username of the author.
+        is_bookmarked (SerializerMethodField): The bookmark status.
+        created_at (SerializerMethodField): The created date.
+        updated_at (SerializerMethodField): The updated date.
+        view_count (SerializerMethodField): The view count.
+        is_upvoted (SerializerMethodField): The upvote status.
+        replies_count (IntegerField): The number of replies.
+        avatar (SerializerMethodField): The avatar of the author.
 
-    Meta:
-        model: Post -- The post model.
-        fields: list -- The fields to serialize.
-        read_only_fields: list -- The fields that are read only.
+    Meta Class:
+        model (Post): The Post model.
+        fields (list): The fields to include in the serialized data.
+        read_only_fields (list): The fields that are read-only.
 
     Methods:
-        get_is_bookmarked: Gets the is_bookmarked field.
-        get_created_at: Gets the created_at field.
-        get_updated_at: Gets the updated_at field.
-        get_view_count: Gets the view_count field.
-        get_is_upvoted: Gets the is_upvoted field.
-        get_avatar: Gets the avatar of the author.
+        get_is_bookmarked(obj: Post) -> bool: Get the bookmark status.
+        get_created_at(obj: Post) -> str: Get the created date.
+        get_updated_at(obj: Post) -> str: Get the updated date.
+        get_view_count(obj: Post) -> int: Get the view count.
+        get_is_upvoted(obj: Post) -> bool: Get the upvote status.
+        get_avatar(obj: Post) -> str | None: Get the avatar of the author.
     """
 
+    # Attributes
     author_username = serializers.ReadOnlyField(source="author.username")
     is_bookmarked = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
@@ -317,15 +371,17 @@ class BasePostSerializer(serializers.ModelSerializer):
     replies_count = serializers.IntegerField(read_only=True)
     avatar = serializers.SerializerMethodField()
 
+    # Meta Class
     class Meta:
-        """Meta class for the BasePostSerializer.
+        """Meta Class
 
         Attributes:
-            model: Post -- The post model.
-            fields: list -- The fields to serialize.
-            read_only_fields: list -- The fields that are read only.
+            model (Post): The Post model.
+            fields (list): The fields to include in the serialized data.
+            read_only_fields (list): The fields that are read-only.
         """
 
+        # Attributes
         model = Post
         fields = [
             "id",
@@ -344,190 +400,239 @@ class BasePostSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "slug", "author_username", "created_at", "updated_at"]
 
+    # Method to get the bookmark status
     def get_is_bookmarked(self, obj: Post) -> bool:
-        """Method to get the is_bookmarked field.
+        """Get the bookmark status.
 
-        Arguments:
-            obj: Post -- The post instance.
+        Args:
+            obj (Post): The post.
 
         Returns:
-            bool: True if the post is bookmarked by the user, False otherwise.
+            bool: The bookmark status.
         """
 
+        # Get the user
         user = self.context.get("request").user
 
+        # If the user is authenticated
         if user.is_authenticated:
+            # Return the bookmark status
             return obj.bookmarked_by.filter(id=user.id).exists()
 
+        # Return false
         return False
 
+    # Method to get the created date
     def get_created_at(self, obj: Post) -> str:
-        """Method to get the created_at field.
+        """Get the created date.
 
-        Arguments:
-            obj: Post -- The post instance.
+        Args:
+            obj (Post): The post.
 
         Returns:
-            str: The created_at field.
+            str: The created date.
         """
 
+        # Return the created date
         return obj.created_at.strftime("%Y-%m-%d %H:%M:%S")
 
+    # Method to get the updated date
     def get_updated_at(self, obj: Post) -> str:
-        """Method to get the updated_at field.
+        """Get the updated date.
 
-        Arguments:
-            obj: Post -- The post instance.
+        Args:
+            obj (Post): The post.
 
         Returns:
-            str: The updated_at field.
+            str: The updated date.
         """
 
+        # Return the updated date
         return obj.updated_at.strftime("%Y-%m-%d %H:%M:%S")
 
+    # Method to get the view count
     def get_view_count(self, obj: Post) -> int:
-        """Method to get the view_count field.
+        """Get the view count.
 
-        Arguments:
-            obj: Post -- The post instance.
+        Args:
+            obj (Post): The post.
 
         Returns:
-            int: The view_count field.
+            int: The view count.
         """
 
+        # Get the content type
         content_type = ContentType.objects.get_for_model(obj)
 
+        # Get the view count
         return ContentView.objects.filter(
             content_type=content_type, object_id=obj.pkid
         ).count()
 
+    # Method to get the upvote status
     def get_is_upvoted(self, obj: Post) -> bool:
-        """Method to get the is_upvoted field.
+        """Get the upvote status.
 
-        Arguments:
-            obj: Post -- The post instance.
+        Args:
+            obj (Post): The post.
 
         Returns:
-            bool: True if the post is upvoted by the user, False otherwise.
+            bool: The upvote status.
         """
 
+        # Get the user
         user = self.context.get("request").user
 
+        # If the user is authenticated
         if user.is_authenticated:
+            # Return the upvote status
             return obj.upvoted_by.filter(id=user.id).exists()
 
+        # Return false
         return False
 
+    # Method to get the avatar of the author
     def get_avatar(self, obj: Post) -> str | None:
-        """Method to get the avatar of the author.
+        """Get the avatar of the author.
 
-        Arguments:
-            obj: Post -- The post instance.
+        Args:
+            obj (Post): The post.
+
+        Returns:
+            str | None: The avatar of the author.
         """
 
+        # If the author has an avatar
         if obj.author.profile.avatar:
+            # Return the avatar
             return obj.author.profile.avatar.url
 
+        # Return None
         return None
 
 
+# PostSerializer
 class PostSerializer(TaggitSerializer, BasePostSerializer):
-    """Post serializer.
+    """PostSerializer
 
-    This class is used to serialize a post.
+    PostSerializer class is used to serialize a post.
 
     Extends:
-        TaggitSerializer
         BasePostSerializer
+        TaggitSerializer
 
     Attributes:
-        tags: TagListSerializerField -- The tags of the post.
-        replies: ReplySerializer -- The replies of the post.
+        tags (TagListSerializerField): The tags.
+        replies (ReplySerializer): The replies.
 
-    Meta:
-        fields: list -- The fields to serialize.
+    Meta Class:
+        fields (list): The fields to include in the serialized data.
 
     Methods:
-        create: Creates a post.
-        update: Updates a post.
+        create(validated_data: dict) -> Post: Create the post.
+        update(instance: Post, validated_data: dict) -> Post: Update the post.
     """
 
+    # Attributes
     tags = TagListSerializerField()
     replies = ReplySerializer(many=True, read_only=True)
 
+    # Meta Class
     class Meta(BasePostSerializer.Meta):
-        """Meta class for the PostSerializer.
+        """Meta Class
 
-        Attributes:
-            fields: list -- The fields to serialize.
+        Args:
+            BasePostSerializer (_type_): The base post serializer.
         """
 
+        # Attributes
         fields = BasePostSerializer.Meta.fields + ["body", "tags", "replies"]
 
+    # Method to create the post
     def create(self, validated_data: dict) -> Post:
-        """Method to create a post.
+        """Create the post.
 
-        Arguments:
-            validated_data: dict -- The validated data.
+        Args:
+            validated_data (dict): The validated data.
 
         Returns:
             Post: The created post.
         """
 
+        # Get the tags
         tags = validated_data.pop("tags")
+
+        # Get the user
         user = self.context.get("request").user
 
+        # Create the post
         post = Post.objects.create(author=user, **validated_data)
+
+        # Add the tags
         post.tags.set(tags)
 
+        # Return the post
         return post
 
+    # Method to update the post
     def update(self, instance: Post, validated_data: dict) -> Post:
-        """Method to update a post.
+        """Update the post.
 
-        Arguments:
-            instance: Post -- The post instance.
-            validated_data: dict -- The validated data.
+        Args:
+            instance (Post): The post instance.
+            validated_data (dict): The validated data.
 
         Returns:
             Post: The updated post.
         """
 
+        # Get the tags
         tags = validated_data.pop("tags", None)
 
+        # Traverse the validated data
         for attr, value in validated_data.items():
+            # Set the attribute
             setattr(instance, attr, value)
 
+        # If tags is not None
         if tags is not None:
+            # Set the tags
             instance.tags.set(tags)
+
+        # Save the instance
         instance.save()
 
+        # Return the instance
         return instance
 
 
+# PostByTagSerializer
 class PostByTagSerializer(TaggitSerializer, BasePostSerializer):
-    """Post by tag serializer.
+    """PostByTagSerializer
 
-    This class is used to serialize a post by tag.
+    PostByTagSerializer class is used to serialize a post by tag.
 
     Extends:
         TaggitSerializer
         BasePostSerializer
 
     Attributes:
-        tags: TagListSerializerField -- The tags of the post.
+        tags (TagListSerializerField): The tags.
 
-    Meta:
-        fields: list -- The fields to serialize.
+    Meta Class:
+        fields (list): The fields to include in the serialized data.
     """
 
+    # Attributes
     tags = TagListSerializerField()
 
+    # Meta Class
     class Meta(BasePostSerializer.Meta):
-        """Meta class for the PostByTagSerializer.
+        """Meta Class
 
-        Attributes:
-            fields: list -- The fields to serialize.
+        Args:
+            BasePostSerializer (_type_): The base post serializer.
         """
 
+        # Attributes
         fields = BasePostSerializer.Meta.fields + ["body", "tags"]

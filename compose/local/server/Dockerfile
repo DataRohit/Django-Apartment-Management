@@ -1,9 +1,9 @@
 # Define an alias for the specific python version used in this file.
-FROM docker.io/python:3.12.3-slim-bookworm as python
+FROM docker.io/python:3.12.3-slim-bookworm AS python
 
 
 # Python build stage
-FROM python as python-build-stage
+FROM python AS python-build-stage
 
 
 # Define an argument for the build environment (default is local)
@@ -25,7 +25,7 @@ RUN pip wheel --wheel-dir /usr/src/app/wheels -r ${BUILD_ENVIRONMENT}.txt
 
 
 # Python 'run' stage
-FROM python as python-run-stage
+FROM python AS python-run-stage
 
 
 # Define arguments for the build environment and application home directory

@@ -10,39 +10,41 @@ from django.db.models.query import QuerySet
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
-
 # Get the user model
 User = get_user_model()
 
 
+# Post Model
 class Post(TimeStampedModel):
-    """Post Model.
+    """Post
 
-    This class defines the post model.
+    Post class is used to represent a post in the database.
+
+    Extends:
+        TimeStampedModel
 
     Attributes:
-        title: models.CharField -- The title.
-        slug: AutoSlugField -- The slug.
-        body: models.TextField -- The body.
-        tags: TaggableManager -- The tags.
-        author: models.ForeignKey {User} -- The author.
-        bookmarked_by: models.ManyToManyField {User} -- The users who bookmarked the post.
-        upvotes: models.PositiveIntegerField -- The upvotes.
-        upvoted_by: models.ManyToManyField {User} -- The users who upvoted the post.
-        downvotes: models.PositiveIntegerField -- The downvotes.
-        downvoted_by: models.ManyToManyField {User} -- The users who downvoted the post.
-        content_views: GenericRelation {ContentView} -- The content views.
+        title (str): The title of the post.
+        slug (AutoSlugField): The slug of the post.
+        body (str): The body of the post.
+        tags (TaggableManager): The tags of the post.
+        author (ForeignKey): The author of the post.
+        bookmarked_by (ManyToManyField): The users who bookmarked the post.
+        upvotes (PositiveIntegerField): The number of upvotes the post has.
+        upvoted_by (ManyToManyField): The users who upvoted the post.
+        downvotes (PositiveIntegerField): The number of downvotes the post has.
+        downvoted_by (ManyToManyField): The users who downvoted the post.
+        content_views (GenericRelation): The content views of the post.
 
     Methods:
-        __str__: Returns the string representation of the post.
-        get_popular_tags: Gets the popular tags.
-        save: Saves the model.
+        get_popular_tags(cls, limit=5) -> QuerySet: Get the popular tags.
 
-    Meta:
-        verbose_name: str -- The verbose name.
-        verbose_name_plural: str -- The verbose name in plural.
+    Meta Class:
+        verbose_name (str): The verbose name of the post.
+        verbose_name_plural (str): The plural verbose name of the post.
     """
 
+    # Attributes
     title = models.CharField(max_length=250, verbose_name=_("Title"))
     slug = AutoSlugField(
         populate_from="title", unique=True, verbose_name=_("Slug"), always_update=True
@@ -77,84 +79,92 @@ class Post(TimeStampedModel):
     )
     content_views = GenericRelation(ContentView, related_query_name="posts")
 
+    # String representation
     def __str__(self) -> str:
-        """String Representation.
+        """Return the string representation of the post.
 
         Returns:
-            str: The string representation of the post.
+            str: The title of the post.
         """
 
+        # Return the title
         return self.title
 
+    # Get the popular tags
     @classmethod
     def get_popular_tags(cls, limit=5) -> QuerySet:
-        """Get popular tags.
+        """Get the popular tags.
 
-        This method gets the popular tags.
-
-        Arguments:
-            limit: int -- The limit.
+        Args:
+            limit (int): The limit.
 
         Returns:
             QuerySet: The popular tags.
         """
 
+        # Return the popular tags
         return cls.tags.annotate(post_count=Count("taggit_taggeditem_items")).order_by(
             "-post_count"
         )[:limit]
 
+    # Save Method
     def save(self, *args, **kwargs) -> None:
-        """Save Method.
-
-        This method saves the model.
+        """Save the post.
 
         Raises:
             ValueError: If the author is not a superuser, staffuser or tenant.
         """
 
+        # If the author is not a superuser, staffuser or tenant
         if not (
             self.author.is_superuser
             or self.author.is_staff
             or self.author.profile.occupation == Profile.Occupation.TENANT
         ):
+            # Raise a value error
             raise ValueError(
                 _("Only superusers, staffusers and tenants can create posts")
             )
 
+        # Save the post
         super().save(*args, **kwargs)
 
+    # Meta Class
     class Meta:
-        """Meta Class.
-
-        This class defines the meta options for the post model.
+        """Meta Class
 
         Attributes:
-            verbose_name: str -- The verbose name.
-            verbose_name_plural: str -- The verbose name in plural.
+            verbose_name (str): The verbose name of the post.
+            verbose_name_plural (str): The plural verbose name of the post.
         """
 
         verbose_name = _("Post")
         verbose_name_plural = _("Posts")
 
 
+# Reply Model
 class Reply(TimeStampedModel):
-    """Reply Model.
+    """Reply
 
-    This class defines the reply model.
+    Reply class is used to represent a reply in the database.
+
+    Extends:
+        TimeStampedModel
 
     Attributes:
-        post: models.ForeignKey {Post} -- The post.
-        author: models.ForeignKey {User} -- The author.
-        body: models.TextField -- The body.
+        post (ForeignKey): The post.
+        author (ForeignKey): The author of the reply.
+        body (TextField): The body of the reply.
 
     Methods:
-        __str__: Returns the string representation of the reply.
+        __str__(): Return the string representation of the reply.
 
-    Meta:
-        verbose_name: str -- The verbose name.
-        verbose_name_plural: str -- The verbose name in plural.
+    Meta Class:
+        verbose_name (str): The verbose name of the reply.
+        verbose_name_plural (str): The plural verbose name of the reply.
     """
 
+    # Attributes
     post = models.ForeignKey(
         Post, verbose_name=_("Post"), on_delete=models.CASCADE, related_name="replies"
     )
@@ -166,23 +176,24 @@ class Reply(TimeStampedModel):
     )
     body = models.TextField(verbose_name=_("Reply"))
 
+    # String representation
     def __str__(self) -> str:
-        """String Representation.
+        """Return the string representation of the reply.
 
         Returns:
             str: The string representation of the reply.
         """
 
+        # Return the string representation
         return f"Reply by {self.author.full_name} on {self.post.title}"
 
+    # Meta Class
     class Meta:
-        """Meta Class.
-
-        This class defines the meta options for the reply model.
+        """Meta Class
 
         Attributes:
-            verbose_name: str -- The verbose name.
-            verbose_name_plural: str -- The verbose name in plural.
+            verbose_name (str): The verbose name of the reply.
+            verbose_name_plural (str): The plural verbose name of the reply.
         """
 
         verbose_name = _("Reply")

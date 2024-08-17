@@ -6,25 +6,30 @@ from django.db.models.query import QuerySet
 from taggit.models import Tag
 
 
+# PostFilter Class
 class PostFilter(django_filters.FilterSet):
-    """Post Filter.
+    """PostFilter
 
-    This class defines the post filter.
+    PostFilter class is used to filter the Post model.
+
+    Extends:
+        django_filters.FilterSet
 
     Attributes:
-        tags: django_filters.ModelMultipleChoiceFilter -- The tags.
-        author_username: django_filters.CharFilter -- The author's username.
-        most_replied_to: django_filters.BooleanFilter -- The most replied to.
-        ordering: django_filters.OrderingFilter -- The ordering.
+        tags (django_filters.ModelMultipleChoiceFilter): The tags.
+        author_username (django_filters.CharFilter): The author's username.
+        most_replied_to (django_filters.BooleanFilter): The most replied to.
+        ordering (django_filters.OrderingFilter): The ordering.
 
     Methods:
-        filter_most_replied_to: Filters the most replied to.
+        filter_most_replied_to: Filter the most replied to.
 
-    Meta:
-        model: Post -- The model.
-        fields: list -- The fields.
+    Meta Class:
+        model (Post): The Post model.
+        fields (list): The fields to filter
     """
 
+    # Attributes
     tags = django_filters.ModelMultipleChoiceFilter(
         field_name="tags__name",
         to_field_name="name",
@@ -43,36 +48,40 @@ class PostFilter(django_filters.FilterSet):
         )
     )
 
+    # Methods
     def filter_most_replied_to(
         self, queryset: QuerySet, name: str, value: bool
     ) -> QuerySet:
-        """Filters the most replied to.
+        """Filter the most replied to.
 
-        Arguments:
-            queryset: QuerySet -- The queryset.
-            name: str -- The name.
-            value: bool -- The value.
+        Args:
+            queryset (QuerySet): The queryset.
+            name (str): The name of the filter.
+            value (bool): The value of the filter.
 
         Returns:
-            QuerySet: The queryset.
+            QuerySet: The filtered queryset.
         """
 
+        # Filter the most replied to
         if value:
+            # Return the queryset
             return queryset.annotate(reply_count=Count("replies")).filter(
                 reply_count__gt=0
             )
 
+        # Return the queryset
         return queryset
 
+    # Meta Class
     class Meta:
-        """Meta Class.
-
-        This class defines the meta options for the post filter.
+        """Meta Class
 
         Attributes:
-            model: Post -- The model.
-            fields: list -- The fields.
+            model (Post): The Post model.
+            fields (list): The fields to filter.
         """
 
+        # Attributes
         model = Post
         fields = ["tags", "author_username", "most_replied_to", "ordering"]

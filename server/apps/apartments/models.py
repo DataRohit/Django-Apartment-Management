@@ -4,26 +4,30 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-
 # Get the user model
 User = get_user_model()
 
 
+# Apartment Model
 class Apartment(TimeStampedModel):
-    """Apartment Model.
+    """Apartment
 
-    This class defines the apartment model.
+    Apartment class is used to represent an apartment in the database.
+
+    Extends:
+        TimeStampedModel
 
     Attributes:
-        unit_number: models.CharField -- The unit number.
-        building: models.CharField -- The building.
-        floor: models.PositiveIntegerField -- The floor.
-        tenant: models.ForeignKey -- The tenant.
+        unit_number (str): The unit number of the apartment.
+        building (str): The building of the apartment.
+        floor (int): The floor of the apartment.
+        tenant (ForeignKey): The tenant of the apartment.
 
     Methods:
-        __str__: Returns the string representation of the apartment.
+        __str__(): Return the string representation of the apartment.
     """
 
+    # Attributes
     unit_number = models.CharField(
         max_length=10, unique=True, verbose_name=_("Unit Number")
     )
@@ -38,11 +42,13 @@ class Apartment(TimeStampedModel):
         verbose_name=_("Tenant"),
     )
 
+    # String Representation
     def __str__(self) -> str:
         """Return the string representation of the apartment.
 
         Returns:
-            str: The string representation.
+            str: The string representation of the apartment.
         """
 
+        # Return the string representation
         return f"Unit: {self.unit_number} - Building: {self.building} - Floor: {self.floor}"

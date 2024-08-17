@@ -2,6 +2,7 @@
 import os
 import uuid
 from typing import Dict
+
 from apps.common.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.contrib.auth import get_user_model
@@ -11,82 +12,87 @@ from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
-
 # Get the user model
 User = get_user_model()
 
 
+# Get the user username
 def get_user_username(instance: "Profile") -> str:  # type: ignore
     """Get the user username.
 
-    This function is used to get the username of the user.
-
-    Arguments:
-        instance: Profile -- The Profile instance.
+    Args:
+        instance (Profile): The profile instance.
 
     Returns:
-        str -- The username of the user.
+        str: The user username.
     """
 
+    # Return the user username
     return instance.user.username
 
 
+# Upload the avatar
 def avatar_upload_to(instance: "Profile", filename: str) -> str:
-    """Generate a unique filename for the avatar.
+    """Upload the avatar.
 
-    This function generates a unique filename using UUID and preserves the original file extension.
-
-    Arguments:
-        instance: Profile -- The Profile instance.
-        filename: str -- The original filename.
+    Args:
+        instance (Profile): The profile instance.
+        filename (str): The filename.
 
     Returns:
-        str -- The unique filename.
+        str: The avatar path.
     """
 
+    # Get the file extension
     ext = filename.split(".")[-1]
+
+    # Generate a new filename
     filename = f"{uuid.uuid4()}.{ext}"
 
+    # Return the avatar path
     return os.path.join("avatars/", filename)
 
 
+# Profile Model
 class Profile(TimeStampedModel):
-    """Profile Model.
+    """Profile
 
-    This model is used to store the profile of the user.
+    Profile class is used to represent a user profile in the database.
 
     Extends:
         TimeStampedModel
 
     Attributes:
-        Gender: TextChoices -- Choices for the gender
-        Occupation: TextChoices -- Choices for the occupation
-
-        user: User {OneToOne} -- The user
-        avatar: CloudinaryField -- Cloudinary field for the avatar image
-        gender: str -- The character field to store user gender
-        bio: text -- The text field for user
-        occupation: str -- The character field for user
-        phone_number: PhoneNumberField -- The phone number field for user
-        country_of_origin: CountryField -- The country field for user
-        city_of_origin: str -- The character field for user
-        report_count: int -- The integer field to track how many times the user has been reported
-        reputation: int -- The integer field to store the reputation of the user
-        slug: AutoSlugField -- Slug field for the user profile
-
-    Properties:
-        is_banned: Check if the user is banned
+        user (OneToOneField): The user the profile belongs to.
+        avatar (ImageField): The avatar of the user.
+        gender (CharField): The gender of the user. Choices are MALE, FEMALE, and OTHER.
+        bio (TextField): The bio of the user.
+        occupation (CharField): The occupation of the user. Choices are MASON, CARPENTER, PLUMBER, ROOFER, PAINTER, ELECTRICIAN, HVAC, and TENANT.
+        phone_number (PhoneNumberField): The phone number of the user.
+        country_of_origin (CountryField): The country of origin of the user.
+        city_of_origin (CharField): The city of origin of the user.
+        report_count (PositiveIntegerField): The number of reports received by the user.
+        reputation (PositiveIntegerField): The reputation of the user.
+        slug (AutoSlugField): The slug of the user.
 
     Methods:
-        update_reputation: Update the reputation of the user
-        save: Save the profile
+        is_banned: Checks if the user is banned based on the report count.
+        update_reputation: Updates the reputation of the user based on the report count.
+        save: Overrides the save method to update the reputation before saving.
+        get_average_rating: Calculates the average rating received by the user.
+
+    Constants:
+        Gender: The options for the gender of the user
+        Occupation: The options for the occupation of the user
     """
 
+    # Constants for the gender field
     class Gender(models.TextChoices):
         MALE = ("male", _("Male"))
         FEMALE = ("female", _("Female"))
         OTHER = ("other", _("Other"))
 
+    # Constants for the occupation field
     class Occupation(models.TextChoices):
         MASON = ("mason", _("Mason"))
         CARPENTER = ("carpenter", _("Carpenter"))
@@ -97,6 +103,7 @@ class Profile(TimeStampedModel):
         HVAC = ("hvac", _("HVAC"))
         TENANT = ("tenant", _("Tenant"))
 
+    # Attributes
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = models.ImageField(
         _("Avatar"), upload_to=avatar_upload_to, blank=True, null=True
@@ -129,48 +136,45 @@ class Profile(TimeStampedModel):
         always_update=True,
     )
 
+    # Property to check if the user is banned
     @property
     def is_banned(self) -> bool:
-        """Check if the user is banned
-
-        This property is used to check if the user is banned.
+        """Check if the user is banned based on the report count.
 
         Returns:
-            bool -- True if the user is banned, False otherwise.
+            bool: True if the user is banned, False otherwise.
         """
 
+        # Return True if the report count is greater than or equal to 5
         return self.report_count >= 5
 
+    # Method to update the reputation of the user
     def update_reputation(self) -> None:
-        """Update the reputation
+        """Update the reputation of the user based on the report count."""
 
-        This method is used to update the reputation of the user.
-        """
-
+        # Update the reputation based on the report count
         self.reputation = max(0, 100 - self.report_count * 20)
 
+    # Method to save the profile
     def save(self, *args: Dict, **kwargs: Dict) -> None:
-        """Save the profile
+        """Override the save method to update the reputation before saving."""
 
-        This method is used to save the profile.
-
-        Arguments:
-            *args: Dict -- The arguments.
-            **kwargs: Dict -- The keyword arguments.
-        """
-
+        # Update the reputation
         self.update_reputation()
+
+        # Return the super save method
         super().save(*args, **kwargs)
 
+    # Method to get the average rating received by the user
     def get_average_rating(self):
-        """Get the average rating
-
-        This method is used to get the average rating of the user.
+        """Calculate the average rating received by the user.
 
         Returns:
-            float: The average rating of the user.
+            float: The average rating rounded to 2 decimal places.
         """
 
+        # Get the average rating
         average = self.user.received_ratings.aggregate(Avg("rating"))["rating__avg"]
 
+        # Return the average rating rounded to 2 decimal places
         return round(average, 2) if average is not None else 0.0

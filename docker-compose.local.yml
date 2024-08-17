@@ -1,127 +1,153 @@
 volumes:
-    local_postgres_data: {}
-    local_postgres_data_backups: {}
-    local_minio_data: {}
-    local_mailpit_data: {}
-    local_redis_data: {}
-    local_logs_nginx: {}
+    local_postgres_data: {} # Volume for PostgreSQL data
+    local_postgres_data_backups: {} # Volume for PostgreSQL backups
+    local_minio_data: {} # Volume for MinIO data
+    local_mailpit_data: {} # Volume for Mailpit data
+    local_redis_data: {} # Volume for Redis data
+    local_logs_nginx: {} # Volume for Nginx
+    local_node_modules: {} # Volume for Client Node Modules
 
 services:
+    # Define the application server service
     server: &server
         build:
-            context: .
-            dockerfile: ./compose/local/server/Dockerfile
-        container_name: alpha_apartments_local_server
+            context: . # Build context is the current directory
+            dockerfile: ./compose/local/server/Dockerfile # Dockerfile path for the server
+        container_name: alpha_apartments_local_server # Container name
         depends_on:
+            # Dependencies for the server service
             - postgres
             - redis
             - mailpit
             - minio
         volumes:
-            - ./server:/app:z
+            - ./server:/app:z # Mount the server directory to the container
         env_file:
-            - ./server/.envs/.local/.django.env
-            - ./server/.envs/.local/.postgres.env
-        command: /start
+            # Environment files for the server
+            - ./.envs/.local/.django.env
+            - ./.envs/.local/.postgres.env
+        command: /start # Command to run when the container starts
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for the server service
 
+    # Define the PostgreSQL service
     postgres:
         build:
-            context: .
-            dockerfile: ./compose/local/postgres/Dockerfile
-        container_name: alpha_apartments_local_postgres
+            context: . # Build context is the current directory
+            dockerfile: ./compose/local/postgres/Dockerfile # Dockerfile path for PostgreSQL
+        container_name: alpha_apartments_local_postgres # Container name
         volumes:
-            - local_postgres_data:/var/lib/postgresql/data
-            - local_postgres_data_backups:/backups
+            - local_postgres_data:/var/lib/postgresql/data # Mount the PostgreSQL data volume
+            - local_postgres_data_backups:/backups # Mount the PostgreSQL backups volume
         env_file:
-            - ./server/.envs/.local/.postgres.env
+            - ./.envs/.local/.postgres.env # Environment file for PostgreSQL
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for PostgreSQL
 
+    # Define the MinIO service
     minio:
-        image: minio/minio
-        container_name: alpha_apartments_local_minio
+        image: minio/minio # MinIO image
+        container_name: alpha_apartments_local_minio # Container name
         volumes:
-            - local_minio_data:/data
+            - local_minio_data:/data # Mount the MinIO data volume
         ports:
-            - "9090:9090"
-        environment:
-            MINIO_ROOT_USER: minioadmin
-            MINIO_ROOT_PASSWORD: minioadmin
-        command: server --console-address :9090 --address :9000 /data
+            - "9090:9090" # Expose port 9090 for MinIO console
+        env_file:
+            - ./.envs/.local/.minio.env # Environment file for MinIO
+        command: server --console-address :9090 --address :9000 /data # Command to start MinIO
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for MinIO
 
+    # Define the Mailpit service
     mailpit:
-        image: docker.io/axllent/mailpit:latest
-        container_name: alpha_apartments_local_mailpit
+        image: docker.io/axllent/mailpit:latest # Mailpit image
+        container_name: alpha_apartments_local_mailpit # Container name
         volumes:
-            - local_mailpit_data:/data
+            - local_mailpit_data:/data # Mount the Mailpit data volume
         ports:
-            - "8025:8025"
-        environment:
-            MP_MAX_MESSAGES: 5000
-            MP_DATA_FILE: /data/mailpit.db
-            MP_SMTP_AUTH_ACCEPT_ANY: 1
-            MP_SMTP_AUTH_ALLOW_INSECURE: 1
+            - "8025:8025" # Expose port 8025 for Mailpit web interface
+        env_file:
+            - ./.envs/.local/.mailpit.env # Environment file for Mailpit
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for Mailpit
 
+    # Define the Redis service
     redis:
-        image: docker.io/redis:6
-        container_name: alpha_apartments_local_redis
+        image: docker.io/redis:6 # Redis image
+        container_name: alpha_apartments_local_redis # Container name
         volumes:
-            - local_redis_data:/data
+            - local_redis_data:/data # Mount the Redis data volume
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for Redis
 
+    # Define the Celery worker service
     celeryworker:
-        <<: *server
-        container_name: alpha_apartments_local_celeryworker
+        <<: *server # Use the server configuration
+        container_name: alpha_apartments_local_celeryworker # Container name
         depends_on:
+            # Dependencies for the Celery worker service
             - redis
             - postgres
             - mailpit
         ports: []
-        command: /start-celeryworker
+        command: /start-celeryworker # Command to start the Celery worker
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for the Celery worker service
 
+    # Define the Celery beat service
     celerybeat:
-        <<: *server
-        container_name: alpha_apartments_local_celerybeat
+        <<: *server # Use the server configuration
+        container_name: alpha_apartments_local_celerybeat # Container name
         depends_on:
+            # Dependencies for the Celery beat service
             - redis
             - postgres
             - mailpit
         ports: []
-        command: /start-celerybeat
+        command: /start-celerybeat # Command to start the Celery beat
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for the Celery beat service
 
+    # Define the Flower service
     flower:
-        <<: *server
-        container_name: alpha_apartments_local_flower
-        command: /start-flower
+        <<: *server # Use the server configuration
+        container_name: alpha_apartments_local_flower # Container name
+        command: /start-flower # Command to start Flower
         ports:
-            - "5555:5555"
+            - "5555:5555" # Expose port 5555 for Flower
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for Flower
 
+    # Define the Client service
+    client:
+        build:
+            context: . # Build context is the current directory
+            dockerfile: ./compose/local/client/Dockerfile # Dockerfile path for Client
+        container_name: alpah_apartments_local_client # Container name
+        depends_on:
+            # Dependencies for Client service
+            - server
+        volumes:
+            - ./client:/app # Mount the client directory to docker
+            - local_node_modules:/app/node_modules # Mount the client node modules
+        networks:
+            - alpha_apartments_network # Network for Client
+
+    # Define the Nginx service
     nginx:
         build:
-            context: .
-            dockerfile: ./compose/local/nginx/Dockerfile
-        container_name: alpha_apartments_local_nginx
+            context: . # Build context is the current directory
+            dockerfile: ./compose/local/nginx/Dockerfile # Dockerfile path for Nginx
+        container_name: alpha_apartments_local_nginx # Container name
         depends_on:
+            # Dependencies for the Nginx service
             - server
         ports:
-            - "8080:80"
+            - "8080:80" # Expose port 8080 for Nginx
         volumes:
-            - local_logs_nginx:/var/log/nginx
+            - local_logs_nginx:/var/log/nginx # Mount the Nginx logs volume
         networks:
-            - alpha_apartments_network
+            - alpha_apartments_network # Network for Nginx
 
 networks:
-    alpha_apartments_network:
+    alpha_apartments_network: # Define a network for all services

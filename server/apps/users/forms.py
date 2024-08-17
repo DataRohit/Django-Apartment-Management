@@ -4,62 +4,69 @@ from django.contrib.auth import forms as admin_forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserChangeForm as BaseUserChangeForm
 
-
 # Get the user model
 User = get_user_model()
 
 
+# User Change Form
 class UserChangeForm(BaseUserChangeForm):
-    """User Change Form.
+    """User Change Form
 
-    This form is used to change the user's information.
+    This class is used to change the user's information.
 
-    Meta:
-        model: User -- The user model.
-        fields: list -- The fields to display in the form.
+    Extends:
+        BaseUserChangeForm
+
+    Meta Class:
+        model (User): The user model.
+        fields (list): The fields to include in the form.
     """
 
+    # Meta Class
     class Meta(BaseUserChangeForm.Meta):
         """Meta Class.
 
-        This class defines the metadata for the UserChangeForm.
-
         Attributes:
-            model: User -- The user model.
-            fields: list -- The fields to display in the form.
+            model (User): The user model.
+            fields (list): The fields to include in the form
         """
 
+        # Attributes
         model = User
         fields = ["first_name", "last_name", "username", "email"]
 
 
+# User Creation Form
 class UserCreationForm(admin_forms.UserCreationForm):
-    """User Creation Form.
+    """User Creation Form
 
-    This form is used to create a new user.
+    This class is used to create a new user.
 
-    Meta:
-        model: User -- The user model.
-        fields: list -- The fields to display in the form.
+    Extends:
+        UserCreationForm
+
+    Meta Class:
+        model (User): The user model.
+        fields (list): The fields to include in the form.
 
     Attributes:
-        error_messages: dict -- The error messages.
+        error_messages (dict): The error messages to display.
 
     Methods:
-        clean_username: Clean the username field.
-        clean_email: Clean the email field.
+        clean_email() -> str: Clean the email.
+        clean_username() -> str: Clean the username.
     """
 
+    # Meta Class
     class Meta(admin_forms.UserCreationForm.Meta):
-        """Meta Class.
-
-        This class defines the metadata for the UserCreationForm.
+        """Meta Class
 
         Attributes:
-            model: User -- The user model.
-            fields: list -- The fields to display in the form.
+            model (User): The user model.
+            fields (list): The fields to include in the form
         """
 
+        # Attributes
         model = User
         fields = ["first_name", "last_name", "username", "email"]
 
@@ -69,32 +76,46 @@ class UserCreationForm(admin_forms.UserCreationForm):
         "duplicate_email": "A user with that email already exists.",
     }
 
+    # Method to clean the email
     def clean_email(self) -> str:
-        """Clean the email field.
+        """Clean the email.
 
         Returns:
-            email: str -- The cleaned email address.
+            str: The cleaned email.
 
         Raises:
-            ValidationError: If the email address is already taken.
+            forms.ValidationError: If the email already exists
         """
 
+        # Get the email
         email = self.cleaned_data["email"]
+
+        # If the email exists
         if User.objects.filter(email=email).exists():
+            # Raise a validation error
             raise forms.ValidationError(self.error_messages["duplicate_email"])
+
+        # Return the email
         return email
 
+    # Method to clean the username
     def clean_username(self) -> str:
-        """Clean the username field.
+        """Clean the username.
 
         Returns:
-            username: str -- The cleaned username.
+            str: The cleaned username.
 
         Raises:
-            ValidationError: If the username is already taken.
+            forms.ValidationError: If the username already exists.
         """
 
+        # Get the username
         username = self.cleaned_data["username"]
+
+        # If the username exists
         if User.objects.filter(username=username).exists():
+            # Raise a validation error
             raise forms.ValidationError(self.error_messages["duplicate_username"])
+
+        # Return the username
         return username

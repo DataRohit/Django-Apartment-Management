@@ -1,12 +1,13 @@
 # Imports
 from apps.apartments.serializers import ApartmentSerializer
+from apps.profiles.models import Profile
 from django_countries.serializer_fields import CountryField
 from rest_framework import serializers
-from apps.profiles.models import Profile
 
 
+# Profile Serializer
 class ProfileSerializer(serializers.ModelSerializer):
-    """Profile Serializer.
+    """Profile serializer
 
     This class is used to serialize a profile.
 
@@ -14,21 +15,27 @@ class ProfileSerializer(serializers.ModelSerializer):
         serializers.ModelSerializer
 
     Attributes:
-        first_name: str -- The first name of the user.
-        last_name: str -- The last name of the user.
-        username: str -- The username of the user.
-        full_name: str -- The full name of the user.
-        country_of_origin: str -- The country of origin of the user.
-        avatar: str -- The avatar of the user.
-        date_joined: datetime -- The date the user joined.
-        apartment: list -- The apartments of the user.
-        average_rating: float -- The average rating of the user.
+        first_name (ReadOnlyField): The first name of the user.
+        last_name (ReadOnlyField): The last name of the user.
+        username (ReadOnlyField): The username of the user.
+        full_name (ReadOnlyField): The full name of the user.
+        country_of_origin (CountryField): The country of origin of the user.
+        avatar (SerializerMethodField): The avatar of the user.
+        date_joined (DateTimeField): The date the user joined.
+        apartment (SerializerMethodField): The apartment the user belongs to.
+        average_rating (SerializerMethodField): The average rating of the user.
 
-    Meta:
-        model: Profile -- The profile model.
-        fields: list -- The fields to include.
+    Methods:
+        get_avatar(obj: Profile) -> str | None: Get the avatar of the user.
+        get_apartment(obj: Profile) -> list | None: Get the apartment the user belongs to.
+        get_average_rating(obj: Profile) -> float: Get the average rating
+
+    Meta Class:
+        model (Profile): The profile model.
+        fields (list): The fields to include in the serialized data.
     """
 
+    # Attributes
     first_name = serializers.ReadOnlyField(source="user.first_name")
     last_name = serializers.ReadOnlyField(source="user.last_name")
     username = serializers.ReadOnlyField(source="user.username")
@@ -39,14 +46,16 @@ class ProfileSerializer(serializers.ModelSerializer):
     apartment = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
 
+    # Meta Class
     class Meta:
-        """Meta Class.
+        """Meta Class
 
         Attributes:
-            model: Profile -- The profile model.
-            fields: list -- The fields to include.
+            model (Profile): The profile model.
+            fields (list): The fields to include in the serialized data.
         """
 
+        # Attributes
         model = Profile
         fields = [
             "id",
@@ -67,82 +76,99 @@ class ProfileSerializer(serializers.ModelSerializer):
             "average_rating",
         ]
 
+    # Method to get the avatar url
     def get_avatar(self, obj: Profile) -> str | None:
         """Get the avatar of the user.
 
-        Arguments:
-            obj: Profile -- The profile object.
+        Args:
+            obj (Profile): The profile.
 
         Returns:
             str | None: The avatar of the user.
         """
+
+        # Try to get the avatar url
         try:
             return obj.avatar.url
-        except AttributeError:
+
+        # If the avatar does not exist
+        except ValueError:
+            # Return None
             return None
 
+    # Method to get the apartment
     def get_apartment(self, obj: Profile) -> list | None:
-        """Get the apartment of the user.
+        """Get the apartment the user belongs to.
 
-        Arguments:
-            obj: Profile -- The profile object.
+        Args:
+            obj (Profile): The profile.
 
         Returns:
-            list: The apartments of the user.
+            list | None: The apartment the user belongs to.
         """
 
+        # Get all the apartments
         apartments = obj.user.apartment.all()
 
+        # If the apartments exist
         if apartments:
+            # Serialize the apartments
             return ApartmentSerializer(apartments, many=True).data
 
+        # Return None
         return None
 
+    # Method to get the average rating
     def get_average_rating(self, obj: Profile) -> float:
-        """Get the average rating of the user.
+        """Get the average rating.
 
-        Arguments:
-            obj: Profile -- The profile object.
+        Args:
+            obj (Profile): The profile.
 
         Returns:
-            float: The average rating of the user.
+            float: The average rating.
         """
 
+        # Return the average rating
         return obj.get_average_rating()
 
 
+# Update Profile Serializer
 class UpdateProfileSerializer(serializers.ModelSerializer):
-    """Update Profile Serializer.
+    """Update profile serializer
 
-    This class is used to serialize a profile for updating.
+    This class is used to serialize the update of a profile.
 
     Extends:
         serializers.ModelSerializer
 
     Attributes:
-        first_name: str -- The first name of the user.
-        last_name: str -- The last name of the user.
-        username: str -- The username of the user.
-        country_of_origin: str -- The country of origin of the user.
+        first_name (ReadOnlyField): The first name of the user.
+        last_name (ReadOnlyField): The last name of the user.
+        username (ReadOnlyField): The username of the user.
+        country_of_origin (CountryField): The country of origin of the user.
 
-    Meta:
-        model: Profile -- The profile model.
-        fields: list -- The fields to include.
+    Meta Class:
+        model (Profile): The profile model.
+        fields (list): The fields to include in the serialized data.
     """
 
+    # Attributes
     first_name = serializers.ReadOnlyField(source="user.first_name")
     last_name = serializers.ReadOnlyField(source="user.last_name")
     username = serializers.ReadOnlyField(source="user.username")
     country_of_origin = CountryField(name_only=True)
 
+    # Meta Class
     class Meta:
-        """Meta Class.
+        """Meta Class
 
         Attributes:
-            model: Profile -- The profile model.
-            fields: list -- The fields to include.
+            model (Profile): The profile model.
+            fields (list): The fields to include in the serialized data.
         """
 
+        # Attributes
         model = Profile
         fields = [
             "first_name",
@@ -157,26 +183,29 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         ]
 
 
+# Avatar Upload Serializer
 class AvatarUploadSerializer(serializers.ModelSerializer):
-    """Avatar Upload Serializer.
+    """Avatar upload serializer
 
-    This class is used to serialize an avatar upload.
+    This class is used to serialize the upload of an avatar.
 
     Extends:
         serializers.ModelSerializer
 
-    Meta:
-        model: Profile -- The profile model.
-        fields: list -- The fields to include.
+    Meta Class:
+        model (Profile): The profile model.
+        fields (list): The fields to include in the serialized data.
     """
 
+    # Meta Class
     class Meta:
-        """Meta Class.
+        """Meta Class
 
         Attributes:
-            model: Profile -- The profile model.
-            fields: list -- The fields to include.
+            model (Profile): The profile model.
+            fields (list): The fields to include in the serialized data.
         """
 
+        # Attributes
         model = Profile
         fields = ["avatar"]

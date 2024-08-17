@@ -5,32 +5,36 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-
 # Get the user model
 User = get_user_model()
 
 
+# Report Model
 class Report(TimeStampedModel):
-    """Report Model.
+    """Report
 
-    This class defines the report model.
+    Report class is used to represent a report in the database.
+
+    Extends:
+        TimeStampedModel
 
     Attributes:
-        title: models.CharField -- The title.
-        slug: AutoSlugField -- The slug.
-        reported_by: models.ForeignKey -- The user who made the report.
-        reported_user: models.ForeignKey -- The user who is reported.
-        description: models.TextField -- The description.
+        title (str): The title of the report.
+        slug (AutoSlugField): The slug of the report.
+        reported_by (ForeignKey): The user who reported the report.
+        reported_user (ForeignKey): The user who was reported.
+        description (str): The description of the report.
 
     Methods:
-        __str__: str -- Returns the string representation of the report.
+        __str__(): Return the string representation of the report.
 
-    Meta:
-        verbose_name: str -- Sets the human-readable name for the model in the Django admin.
-        verbose_name_plural: str -- Sets the human-readable plural name for the model in the Django admin.
-        ordering: list -- Sets the default ordering for the model.
+    Meta Class:
+        verbose_name (str): The human-readable name of the model.
+        verbose_name_plural (str): The human-readable plural name of the model.
+        ordering (list): The default ordering for the model.
     """
 
+    # Attributes
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
     reported_by = models.ForeignKey(
@@ -51,26 +55,28 @@ class Report(TimeStampedModel):
     )
     description = models.TextField(verbose_name=_("Description"))
 
+    # String representation
     def __str__(self) -> str:
-        """String Representation.
+        """String Representation
 
         Returns:
             str: The string representation of the report.
         """
 
+        # Return the string representation
         return f"Report by {self.reported_by.full_name} against {self.reported_user.full_name}"
 
+    # Meta Class
     class Meta:
-        """Meta Class.
-
-        This class defines the meta options for the report model.
+        """Meta Class
 
         Attributes:
-            verbose_name: str -- Sets the human-readable name for the model in the Django admin.
-            verbose_name_plural: str -- Sets the human-readable plural name for the model in the Django admin.
-            ordering: list -- Sets the default ordering for the model.
+            verbose_name (str): The human-readable name of the model.
+            verbose_name_plural (str): The human-readable plural name of the model.
+            ordering (list): The default ordering for the model.
         """
 
+        # Attributes
         verbose_name = _("Report")
         verbose_name_plural = _("Reports")
         ordering = ["-created_at"]

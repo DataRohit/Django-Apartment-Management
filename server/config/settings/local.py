@@ -1,7 +1,6 @@
 # Imports
-from .base import *
-from .base import INSTALLED_APPS, env
-
+from .base import *  # noqa: F403
+from .base import BASE_DIR, INSTALLED_APPS, env
 
 # General
 # ------------------------------------------------------------------------------
@@ -10,11 +9,11 @@ SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
     default="QTMT8ZsZaDOSmVFhCTmJULzMu1DLNxbqoKKAGBsFwUwQKRjIzXYyeKCeRRqvGn23",
 )
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "alpha-apartments.serveo.net"]
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8080',
-    'http://0.0.0.0:8080',
-    'http://127.0.0.1:8080',
+    "http://localhost:8080",
+    "http://0.0.0.0:8080",
+    "http://127.0.0.1:8080",
 ]
 SITE_NAME = "Alpha Apartments"
 
@@ -53,13 +52,13 @@ AWS_S3_CUSTOM_DOMAIN = f"localhost:8080/minio/storage/{AWS_STORAGE_BUCKET_NAME}"
 
 # Static files settings
 # ------------------------------------------------------------------------------
-STATIC_URL = f"http://localhost:8080/alpha-apartments/static/"
+STATIC_URL = "http://localhost:8080/alpha-apartments/static/"
 STATICFILES_STORAGE = "config.settings.storage_backends.StaticStorage"
 
 
 # Media files settings
 # ------------------------------------------------------------------------------
-MEDIA_URL = f"http://localhost:8080/alpha-apartments/media/"
+MEDIA_URL = "http://localhost:8080/alpha-apartments/media/"
 DEFAULT_FILE_STORAGE = "config.settings.storage_backends.MediaStorage"
 
 

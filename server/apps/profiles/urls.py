@@ -1,20 +1,18 @@
 # Imports
 from apps.profiles.views import (
     AvatarUploadAPIView,
-    NonTenantProfileListAPIview,
+    NonTenantProfileListAPIView,
     ProfileDetailAPIView,
     ProfileListAPIView,
     ProfileUpdateAPIView,
 )
 from django.urls import path
 
-
-# Set the url patterns
 urlpatterns = [
     path("all/", ProfileListAPIView.as_view(), name="list-profiles"),
     path(
         "non-tenant-profiles/",
-        NonTenantProfileListAPIview.as_view(),
+        NonTenantProfileListAPIView.as_view(),
         name="list-non-tenant-profiles",
     ),
     path(

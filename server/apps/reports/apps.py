@@ -3,28 +3,29 @@ from django.apps import AppConfig
 from django.utils.translation import gettext_lazy as _
 
 
+# ReportsConfig Class
 class ReportsConfig(AppConfig):
-    """Reports App Config
+    """ReportsConfig
 
-    This class is used to configure the Reports app.
+    ReportsConfig class is used to configure the reports app.
 
     Attributes:
-        default_auto_field: str -- The default auto field to use for models.
-        name: str -- The name of the app.
-        verbose_name: str -- The human-readable name of the app.
+        default_auto_field (str): The default auto field to use for models.
+        name (str): The name of the app.
+        verbose_name (str): The human-readable name of the app.
 
     Methods:
-        ready: This method is called when the app is ready.
+        ready: Import the signals module when the app is ready.
     """
 
+    # Attributes
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.reports"
     verbose_name = _("Reports")
 
+    # Ready Method
     def ready(self) -> None:
-        """Ready Method
+        """Ready Method"""
 
-        This method is called when the app is ready.
-        """
-
-        import apps.reports.signals
+        # Imports
+        import apps.reports.signals  # noqa: F401
